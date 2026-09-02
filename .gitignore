@@ -15,3 +15,4 @@ sync_output.log
 
 # Written by each run; CI copies it into logs/ instead.
 sync_report.json
+run_local_sync.log

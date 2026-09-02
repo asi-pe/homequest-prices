@@ -131,19 +131,22 @@ def download_chain_laibcatalog(chain_name, dest_dir):
     import urllib.parse
     import urllib.request
 
-    def _get(url, attempts=3):
-        # The host is occasionally slow to answer; a transient timeout must not cost
-        # us the whole chain for the day.
+    def _get(url, attempts=2):
+        # Baseline latency here is well under a second, so a 60s timeout mostly means
+        # "wait a full minute to discover this one call is not coming back" — a run of
+        # 100 branches with even a handful of these compounds into many wasted minutes,
+        # which is what happened: one chain took 13 minutes because ~30% of its 100
+        # requests timed out. 20s is still generous headroom, not a tight budget.
         last = None
         for i in range(attempts):
             try:
                 req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-                with urllib.request.urlopen(req, timeout=60) as resp:
+                with urllib.request.urlopen(req, timeout=20) as resp:
                     return resp.read()
             except Exception as e:  # noqa: BLE001 - retried below, re-raised if final
                 last = e
                 if i < attempts - 1:
-                    time.sleep(3 * (i + 1))
+                    time.sleep(2)
         raise last
 
     downloaded = 0
@@ -197,6 +200,11 @@ def download_chain_laibcatalog(chain_name, dest_dir):
             with open(os.path.join(dest_dir, name), "wb") as fh:
                 fh.write(blob)
             downloaded += 1
+            # A brief pause between requests. Firing ~100-200 back-to-back requests at
+            # this host with no gap is indistinguishable from an aggressive scraper —
+            # plausibly why a Mahsani run right after a 13-minute Victory hammering
+            # came back with an empty listing.
+            time.sleep(0.3)
 
     print(f"  laibcatalog: downloaded {downloaded} branch files")
 
