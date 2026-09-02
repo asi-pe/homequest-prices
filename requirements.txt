@@ -1,0 +1,4 @@
+# Pin 1.0.2 explicitly — older versions pin lxml==4.9.1 which has no wheel for
+# Python 3.13/3.14 and fails to compile. 1.0.2 uses lxml >=5.2.1 (prebuilt wheels exist).
+il-supermarket-scraper==1.0.2
+supabase>=2.7.0

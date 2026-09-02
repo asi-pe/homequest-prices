@@ -1,0 +1,17 @@
+# The real secret key. NEVER commit this — the repo is public.
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Downloaded price files and local run output
+dumps/
+*.xml
+*.gz
+logging.log
+sync_output.log
+
+# Written by each run; CI copies it into logs/ instead.
+sync_report.json

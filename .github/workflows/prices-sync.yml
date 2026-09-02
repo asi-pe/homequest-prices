@@ -1,0 +1,96 @@
+name: Daily Price Sync
+
+# Downloads the official Israeli price-transparency files for the pilot supermarket
+# chains and upserts them into Supabase, once a day.
+#
+# This repo is deliberately PUBLIC and deliberately separate from the app repo:
+#   * public  -> unlimited GitHub Actions minutes, so a daily job cannot exhaust a quota
+#   * separate-> the app's source never has to become public for that to be true
+# The only thing shared between the two is the Supabase database, which the app reads
+# over its public REST endpoint. Nothing in this repo is a secret except the one key
+# stored in repo Settings -> Secrets.
+#
+# Required repo secret:  SUPABASE_SERVICE_KEY   (the sb_secret_... key)
+
+on:
+  schedule:
+    # 01:00 UTC — 03:00 Israel (winter) / 04:00 (summer). Chains publish overnight.
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+    inputs:
+      chains:
+        description: 'Comma-separated chain enums to sync (blank = all)'
+        required: false
+        default: ''
+
+# Never let two syncs upsert the same rows at once.
+concurrency:
+  group: prices-sync
+  cancel-in-progress: false
+
+permissions:
+  # Needed by the "commit the run log" step below, which is what keeps the schedule
+  # alive — see the comment there.
+  contents: write
+
+jobs:
+  sync:
+    name: Sync supermarket prices
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          # 3.12: il-supermarket-scraper 1.0.2 pulls lxml >=5.2.1, which has wheels here.
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run sync
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SYNC_CHAINS: ${{ inputs.chains }}
+        run: python sync_prices.py
+
+      - name: Commit the run log
+        # Two jobs in one:
+        #   1. A visible daily record of what each chain actually produced, in git.
+        #   2. Keeping this workflow alive. GitHub disables scheduled workflows in a
+        #      public repo after 60 days with no repository activity, and nobody pushes
+        #      code to a scraper repo. This commit is that activity.
+        # Runs even when the sync failed — a failed run is exactly the one worth recording.
+        if: always()
+        run: |
+          set -e
+          mkdir -p logs
+          if [ -f sync_report.json ]; then
+            cp sync_report.json "logs/last-sync.json"
+            date -u +"%Y-%m-%dT%H:%M:%SZ" > logs/last-run.txt
+          else
+            date -u +"%Y-%m-%dT%H:%M:%SZ (no report produced — the sync died early)" > logs/last-run.txt
+          fi
+          git config user.name  "prices-sync[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add logs
+          git diff --staged --quiet || git commit -m "chore(sync): run log $(date -u +%Y-%m-%d)"
+          git push
+
+      - name: Upload run log artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prices-sync-log
+          path: sync_report.json
+          if-no-files-found: ignore
+          retention-days: 14
