@@ -72,8 +72,13 @@ BATCH_SIZE = 1000  # rows per upsert call
 # Measured on 2026-09-02: three branch files cost 13-17s for a healthy chain, i.e.
 # roughly 5s per branch, not the ~60s first assumed. Branch coverage is therefore
 # cheap and the old default of 3 was leaving most of each catalogue on the floor.
-# 40 branches is ~3.5 min/chain, ~25 min for all seven — well inside the CI timeout.
-FILES_PER_CHAIN = int(os.environ.get("FILES_PER_CHAIN") or 40)
+# The limit counts FILES, not branches, and chains republish the same branch several
+# times a day at different rates — so an equal file budget buys very unequal branch
+# coverage. At 40 files Osher Ad reached only ~16 branches while Shufersal and
+# Yohananof reached 40, which is the entire reason Osher Ad "had the fewest products".
+# 100 files gives the slowest-deduplicating chain full coverage; the Branches column
+# in the run report is the number to watch, not Files.
+FILES_PER_CHAIN = int(os.environ.get("FILES_PER_CHAIN") or 100)
 
 # The project URL is not a secret (the app ships it in client code), so it has a
 # default and only the service key has to be configured on the host.
@@ -317,9 +322,22 @@ def collect_rows(chain_name, folder):
         f for f in glob.glob(os.path.join(folder, "**", "*"), recursive=True)
         if os.path.isfile(f) and "/status/" not in f.replace(os.sep, "/")
     ]
+    # Files are NOT branches. Chains publish on their own cadence: Osher Ad posts
+    # each branch about three times a day, Rami Levy twice, Shufersal and Yohananof
+    # once. A fixed file limit therefore gives Osher Ad a third of Yohananof's branch
+    # coverage, and their product counts cannot be compared at all. The branch number
+    # is the third dash-separated field of the filename:
+    #   PriceFull<chainid>-<sub>-<BRANCH>-<date>-<time>
+    branches = set()
+    for f in seen_files:
+        parts = os.path.basename(f).split("-")
+        if len(parts) >= 3:
+            branches.add(parts[2])
+
     stats = {
         "files_downloaded": len(all_files),
         "files_matched": len(seen_files),
+        "branches": len(branches),
         "sample_filenames": sorted(os.path.basename(f) for f in all_files)[:5],
     }
     return list(by_barcode.values()), stats
@@ -346,14 +364,14 @@ def write_report(results):
         json.dump(results, fh, ensure_ascii=False, indent=2)
 
     lines = [
-        "| Chain | Files | Parsed | Upserted | Seconds | Status |",
-        "| --- | ---: | ---: | ---: | ---: | --- |",
+        "| Chain | Files | Branches | Parsed | Upserted | Seconds | Status |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | --- |",
     ]
     for r in results:
         status = r["error"] or ("OK" if r["upserted"] else "no products")
         lines.append(
-            f"| {r['label']} | {r['files_downloaded']} | {r['parsed']} "
-            f"| {r['upserted']} | {r.get('seconds', 0)} | {status} |"
+            f"| {r['label']} | {r['files_downloaded']} | {r.get('branches', 0)} "
+            f"| {r['parsed']} | {r['upserted']} | {r.get('seconds', 0)} | {status} |"
         )
     # The knob that decides catalogue coverage vs. run time — record what produced
     # these numbers, otherwise the table cannot be compared between runs.
@@ -378,7 +396,7 @@ def main():
         started = time.time()
         entry = {
             "chain": chain, "label": label, "files_downloaded": 0,
-            "files_matched": 0, "parsed": 0, "upserted": 0,
+            "files_matched": 0, "branches": 0, "parsed": 0, "upserted": 0,
             "sample_filenames": [], "error": None,
         }
 
@@ -389,7 +407,8 @@ def main():
                 entry.update(stats)
                 entry["parsed"] = len(rows)
                 print(f"  downloaded {stats['files_downloaded']} files "
-                      f"({stats['files_matched']} matched), parsed {len(rows)} products")
+                      f"({stats['files_matched']} matched, {stats.get('branches', 0)} "
+                      f"distinct branches), parsed {len(rows)} products")
                 if rows:
                     entry["upserted"] = upsert_rows(sb, rows)
                     print(f"  upserted {entry['upserted']} rows")
