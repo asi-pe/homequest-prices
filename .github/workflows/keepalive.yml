@@ -1,0 +1,74 @@
+name: Supabase Keep-Alive
+
+# Supabase pauses a FREE-tier project after 7 consecutive days with no database
+# request, and emails a warning first.
+#
+# The daily sync already generates plenty of activity — it upserts tens of thousands of
+# rows — but only WHILE IT WORKS. If the scraper breaks (a chain changes its file format,
+# the upstream library breaks, the site goes down), the sync can fail for days in a row
+# and produce no database traffic at all. That is exactly when nobody is paying attention,
+# so it is exactly when the project would get paused.
+#
+# This job therefore does not depend on the sync succeeding, or on the sync running at
+# all. It is one cheap read, it takes a couple of seconds, and it runs every day on its
+# own schedule. It also acts as an uptime check: if Supabase stops answering, this goes
+# red and GitHub emails, which is the earliest possible warning that something is wrong.
+#
+# No secret required — it uses the publishable (anon) read-only key, the same one the app
+# ships in its client code.
+
+on:
+  schedule:
+    # 13:00 UTC — deliberately ~12h away from the sync, so the two never rely on
+    # each other and the database sees traffic twice a day.
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-keepalive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    name: Ping Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Read one row from the prices table
+        env:
+          SUPABASE_URL: https://echyvokwnbhxbrgsoodt.supabase.co
+          SUPABASE_ANON_KEY: sb_publishable_iPzc_6x1FIfKulh9ELzSuQ_IVRe0YaK
+        run: |
+          set -euo pipefail
+
+          code=$(curl -sS -m 30 -o /tmp/body.json -w '%{http_code}' \
+            "${SUPABASE_URL}/rest/v1/prices?select=updated_at&order=updated_at.desc&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+
+          echo "HTTP ${code}"
+          cat /tmp/body.json
+
+          if [ "$code" != "200" ]; then
+            echo "::error title=Supabase unreachable::Ping returned HTTP ${code}. The project may be paused, or the key may have been rotated."
+            exit 1
+          fi
+
+          # Surface how stale the data is. This is the number that silently drifted to
+          # 71 days old under the previous setup, so it belongs somewhere visible.
+          newest=$(grep -o '"updated_at":"[^"]*"' /tmp/body.json | head -1 | cut -d'"' -f4 || true)
+          {
+            echo "## Supabase keep-alive"
+            echo ""
+            echo "- Ping: **OK** (HTTP 200)"
+            echo "- Newest price row: \`${newest:-unknown}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -n "${newest:-}" ]; then
+            age=$(( ( $(date -u +%s) - $(date -u -d "$newest" +%s) ) / 86400 ))
+            echo "- Data age: **${age} days**" >> "$GITHUB_STEP_SUMMARY"
+            if [ "$age" -gt 3 ]; then
+              echo "::warning title=Stale prices::The newest price row is ${age} days old — the daily sync is probably failing."
+            fi
+          fi
