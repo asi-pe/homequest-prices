@@ -69,7 +69,11 @@ CHAIN_LABELS = {
 BATCH_SIZE = 1000  # rows per upsert call
 
 # How many PriceFull files (= branches) to pull per chain. See download_chain().
-FILES_PER_CHAIN = int(os.environ.get("FILES_PER_CHAIN") or 3)
+# Measured on 2026-09-02: three branch files cost 13-17s for a healthy chain, i.e.
+# roughly 5s per branch, not the ~60s first assumed. Branch coverage is therefore
+# cheap and the old default of 3 was leaving most of each catalogue on the floor.
+# 40 branches is ~3.5 min/chain, ~25 min for all seven — well inside the CI timeout.
+FILES_PER_CHAIN = int(os.environ.get("FILES_PER_CHAIN") or 40)
 
 # The project URL is not a secret (the app ships it in client code), so it has a
 # default and only the service key has to be configured on the host.
@@ -103,12 +107,98 @@ def chains_to_sync():
     return wanted
 
 
+# Chains whose scraper class routes through laibcatalog.co.il. The library walks
+# every branch with a separate getfiles call (~140 requests, each returning
+# thousands of entries), which hangs and gives up after ~9 minutes with 0 files —
+# that alone burned 18 of the 21 minutes of a full run. The API itself is fine, so
+# these two are fetched directly. Verified 2026-09-02: getfiles returns 70+
+# pricefull entries per chain and a single branch file parses to ~8,600 products.
+LAIBCATALOG_BASE = "https://laibcatalog.co.il"
+LAIBCATALOG_CHAINS = {
+    "VICTORY_NEW_SOURCE": ["7290696200003"],
+    "MAHSANI_ASHUK_NEW_SOURCE": ["7290661400001"],
+}
+
+
+def download_chain_laibcatalog(chain_name, dest_dir):
+    """Download the newest PriceFull file per branch straight from the API."""
+    import json
+    import urllib.parse
+    import urllib.request
+
+    def _get(url, attempts=3):
+        # The host is occasionally slow to answer; a transient timeout must not cost
+        # us the whole chain for the day.
+        last = None
+        for i in range(attempts):
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    return resp.read()
+            except Exception as e:  # noqa: BLE001 - retried below, re-raised if final
+                last = e
+                if i < attempts - 1:
+                    time.sleep(3 * (i + 1))
+        raise last
+
+    downloaded = 0
+    for edi in LAIBCATALOG_CHAINS[chain_name]:
+        listing_url = (
+            f"{LAIBCATALOG_BASE}/webapi/api/getfiles?"
+            + urllib.parse.urlencode({"edi": edi})
+        )
+        try:
+            entries = json.loads(_get(listing_url))
+        except Exception as e:  # noqa: BLE001 - a bad listing must not kill the chain
+            print(f"  laibcatalog listing failed for {edi}: {e}")
+            continue
+
+        # A malformed response can come back as a bare string rather than a list.
+        if not isinstance(entries, list):
+            print(f"  laibcatalog returned no usable listing for {edi}")
+            continue
+
+        full = [
+            e for e in entries
+            if isinstance(e, dict) and str(e.get("fileType", "")).lower() == "pricefull"
+        ]
+        # Newest first, then one file per branch: the listing holds several days.
+        full.sort(key=lambda e: str(e.get("fileDate", "")), reverse=True)
+
+        seen_branches = set()
+        for entry in full:
+            if downloaded >= FILES_PER_CHAIN:
+                break
+            branch = entry.get("branchNumber")
+            if branch in seen_branches:
+                continue
+            seen_branches.add(branch)
+
+            name = entry.get("fileName")
+            if not name:
+                continue
+            try:
+                blob = _get(f"{LAIBCATALOG_BASE}/webapi/{edi}/{name}")
+            except Exception as e:  # noqa: BLE001 - skip one file, keep the rest
+                print(f"  download failed for {name}: {e}")
+                continue
+            with open(os.path.join(dest_dir, name), "wb") as fh:
+                fh.write(blob)
+            downloaded += 1
+
+    print(f"  laibcatalog: downloaded {downloaded} branch files")
+
+
 def download_chain(chain_name, dest_dir):
     """Download the latest price files for one chain into dest_dir.
 
     Note the import module is `il_supermarket_scarper` (spelled "scarper") even
     though the pip package is `il-supermarket-scraper`.
     """
+    if chain_name in LAIBCATALOG_CHAINS:
+        download_chain_laibcatalog(chain_name, dest_dir)
+        return
+
     from il_supermarket_scarper import ScarpingTask
 
     # Only price files matter for us (not promos/stores).
