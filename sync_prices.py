@@ -142,6 +142,7 @@ def download_chain_laibcatalog(chain_name, dest_dir):
         raise last
 
     downloaded = 0
+    errors = []
     for edi in LAIBCATALOG_CHAINS[chain_name]:
         listing_url = (
             f"{LAIBCATALOG_BASE}/webapi/api/getfiles?"
@@ -150,12 +151,16 @@ def download_chain_laibcatalog(chain_name, dest_dir):
         try:
             entries = json.loads(_get(listing_url))
         except Exception as e:  # noqa: BLE001 - a bad listing must not kill the chain
-            print(f"  laibcatalog listing failed for {edi}: {e}")
+            msg = f"listing {edi}: {type(e).__name__}: {e}"
+            print(f"  laibcatalog {msg}")
+            errors.append(msg)
             continue
 
         # A malformed response can come back as a bare string rather than a list.
         if not isinstance(entries, list):
-            print(f"  laibcatalog returned no usable listing for {edi}")
+            msg = f"listing {edi}: unusable response {str(entries)[:120]!r}"
+            print(f"  laibcatalog {msg}")
+            errors.append(msg)
             continue
 
         full = [
@@ -180,13 +185,20 @@ def download_chain_laibcatalog(chain_name, dest_dir):
             try:
                 blob = _get(f"{LAIBCATALOG_BASE}/webapi/{edi}/{name}")
             except Exception as e:  # noqa: BLE001 - skip one file, keep the rest
-                print(f"  download failed for {name}: {e}")
+                msg = f"download {name}: {type(e).__name__}: {e}"
+                print(f"  laibcatalog {msg}")
+                errors.append(msg)
                 continue
             with open(os.path.join(dest_dir, name), "wb") as fh:
                 fh.write(blob)
             downloaded += 1
 
     print(f"  laibcatalog: downloaded {downloaded} branch files")
+
+    # Surface WHY nothing arrived. Swallowing this is how a chain sat at 0 products
+    # while the report showed a blank Status cell and no reason to look further.
+    if downloaded == 0:
+        raise RuntimeError("; ".join(errors) or "no PriceFull entries in the listing")
 
 
 def download_chain(chain_name, dest_dir):
