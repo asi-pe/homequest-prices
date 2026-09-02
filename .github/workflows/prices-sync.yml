@@ -22,6 +22,10 @@ on:
         description: 'Comma-separated chain enums to sync (blank = all)'
         required: false
         default: ''
+      files_per_chain:
+        description: 'Branch files to download per chain (blank = 3). More = fuller catalogue, longer run.'
+        required: false
+        default: ''
 
 # Never let two syncs upsert the same rows at once.
 concurrency:
@@ -61,6 +65,7 @@ jobs:
           SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           SYNC_CHAINS: ${{ inputs.chains }}
+          FILES_PER_CHAIN: ${{ inputs.files_per_chain }}
         run: python sync_prices.py
 
       - name: Commit the run log

@@ -19,6 +19,8 @@ Env vars:
   SUPABASE_URL          optional, defaults to DEFAULT_SUPABASE_URL below.
   SYNC_CHAINS           optional. Comma-separated chain enums to sync (blank = all),
                         handy for re-running just the chains that are still broken.
+  FILES_PER_CHAIN       optional, default 3. How many branch files to pull per chain;
+                        more branches means a fuller catalogue but a longer run.
 
 Exit code is 1 when no chain synced at all, so a silent failure shows up as a red
 run instead of stale data nobody notices.
@@ -65,6 +67,9 @@ CHAIN_LABELS = {
 }
 
 BATCH_SIZE = 1000  # rows per upsert call
+
+# How many PriceFull files (= branches) to pull per chain. See download_chain().
+FILES_PER_CHAIN = int(os.environ.get("FILES_PER_CHAIN") or 3)
 
 # The project URL is not a secret (the app ships it in client code), so it has a
 # default and only the service key has to be configured on the host.
@@ -120,10 +125,21 @@ def download_chain(chain_name, dest_dir):
         },
     )
     # `limit` (max files to download) belongs to start() in this library version.
-    # A few PriceFull files already hold the full catalogue, so keep it small/cheap.
-    # start() runs in a BACKGROUND thread — join() blocks until the download is
-    # actually finished, otherwise we'd parse an empty folder (0 products).
-    task.start(limit=3)
+    #
+    # It used to be hardcoded to 3, with a comment claiming "a few PriceFull files
+    # already hold the full catalogue". That is wrong: under the price-transparency
+    # rules each PriceFull file is ONE BRANCH, so limit=3 samples three arbitrary
+    # branches and calls the result the chain's catalogue. Two chains' product counts
+    # were therefore not comparable at all — they measured which branches we happened
+    # to grab, not what the chains actually stock.
+    #
+    # Raising it costs wall-clock time roughly linearly, and the CI job has a hard
+    # timeout, so the real value is an empirical trade-off rather than "all of them".
+    # It is configurable so it can be measured instead of guessed.
+    #
+    # start() runs in a BACKGROUND thread — join() blocks until the download has
+    # actually finished, otherwise we would parse an empty folder and get 0 products.
+    task.start(limit=FILES_PER_CHAIN)
     task.join()
 
 
@@ -228,15 +244,19 @@ def write_report(results):
         json.dump(results, fh, ensure_ascii=False, indent=2)
 
     lines = [
-        "| Chain | Files | Parsed | Upserted | Status |",
-        "| --- | ---: | ---: | ---: | --- |",
+        "| Chain | Files | Parsed | Upserted | Seconds | Status |",
+        "| --- | ---: | ---: | ---: | ---: | --- |",
     ]
     for r in results:
         status = r["error"] or ("OK" if r["upserted"] else "no products")
         lines.append(
             f"| {r['label']} | {r['files_downloaded']} | {r['parsed']} "
-            f"| {r['upserted']} | {status} |"
+            f"| {r['upserted']} | {r.get('seconds', 0)} | {status} |"
         )
+    # The knob that decides catalogue coverage vs. run time — record what produced
+    # these numbers, otherwise the table cannot be compared between runs.
+    lines.append("")
+    lines.append(f"`FILES_PER_CHAIN={FILES_PER_CHAIN}`")
     table = "\n".join(lines)
     print("\n" + table)
 
