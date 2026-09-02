@@ -1,0 +1,140 @@
+name: Weekly Health Report
+
+# A positive weekly signal that the sync is alive.
+#
+# GitHub already emails on a failed run, but silence is not proof of health: the reason
+# this project sat broken for 71 days is that nothing ever said "I am working" OR "I am
+# broken" — it just said nothing. A green run nobody opens and a job that quietly stopped
+# being scheduled look identical from the outside.
+#
+# So once a week this posts a plain-language report as a comment on one tracking issue,
+# which GitHub emails to the repo owner. Receiving the email IS the signal. If the emails
+# stop arriving, that is itself evidence something broke, even if no failure was reported.
+#
+# Needs no secrets: it reads Supabase with the publishable key and comments with the
+# built-in GITHUB_TOKEN.
+
+on:
+  schedule:
+    # 05:00 UTC Sunday — 08:00 Israel, a few hours after Saturday night's sync.
+    - cron: '0 5 * * 0'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+concurrency:
+  group: weekly-report
+  cancel-in-progress: false
+
+jobs:
+  report:
+    name: Post weekly report
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Collect chain health
+        id: collect
+        env:
+          SUPABASE_URL: https://echyvokwnbhxbrgsoodt.supabase.co
+          SUPABASE_ANON_KEY: sb_publishable_iPzc_6x1FIfKulh9ELzSuQ_IVRe0YaK
+        run: |
+          set -euo pipefail
+
+          # Pipe-separated: several labels contain spaces ("אושר עד",
+          # "יינות ביתן / קארפור"), so plain word splitting would tear them in half.
+          chains='RAMI_LEVY|רמי לוי
+          SHUFERSAL|שופרסל
+          VICTORY_NEW_SOURCE|ויקטורי
+          YOHANANOF|יוחננוף
+          OSHER_AD|אושר עד
+          MAHSANI_ASHUK_NEW_SOURCE|מחסני השוק
+          YAYNO_BITAN_AND_CARREFOUR|יינות ביתן / קארפור'
+
+          : > rows.md
+          fresh=0
+          total=0
+
+          while IFS='|' read -r code label; do
+            code=$(printf '%s' "$code" | tr -d '[:space:]')
+            [ -z "$code" ] && continue
+            total=$((total + 1))
+
+            count=$(curl -sS -m 30 -I \
+              "${SUPABASE_URL}/rest/v1/prices?select=barcode&chain=eq.${code}" \
+              -H "apikey: ${SUPABASE_ANON_KEY}" -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+              -H "Prefer: count=exact" -H "Range: 0-0" \
+              | tr -d '\r' | grep -i '^content-range' | sed 's#.*/##' || true)
+            count=${count:-0}
+
+            updated=$(curl -sS -m 30 \
+              "${SUPABASE_URL}/rest/v1/prices?select=updated_at&chain=eq.${code}&order=updated_at.desc&limit=1" \
+              -H "apikey: ${SUPABASE_ANON_KEY}" -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+              | grep -o '"updated_at":"[^"]*"' | head -1 | cut -d'"' -f4 || true)
+
+            if [ -n "${updated:-}" ]; then
+              age=$(( ( $(date -u +%s) - $(date -u -d "$updated" +%s) ) / 86400 ))
+              # Chains sync nightly; 2 days is normal slack, beyond that is a real problem.
+              if [ "$age" -le 2 ]; then
+                icon='✅'
+                fresh=$((fresh + 1))
+              else
+                icon='⚠️'
+              fi
+              printf '| %s | %s | לפני %s ימים | %s |\n' "$label" "$count" "$age" "$icon" >> rows.md
+            else
+              printf '| %s | %s | אין נתונים | ❌ |\n' "$label" "$count" >> rows.md
+            fi
+          done <<< "$chains"
+
+          echo "fresh=$fresh"   >> "$GITHUB_OUTPUT"
+          echo "total=$total"   >> "$GITHUB_OUTPUT"
+
+      - name: Post the report
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FRESH: ${{ steps.collect.outputs.fresh }}
+          TOTAL: ${{ steps.collect.outputs.total }}
+          ISSUE_TITLE: 'דוח שבועי — סנכרון מחירים'
+        run: |
+          set -euo pipefail
+
+          if [ "$FRESH" -eq 0 ]; then
+            headline="🔴 **הסנכרון לא עובד.** אף רשת לא התעדכנה בימים האחרונים."
+          elif [ "$FRESH" -lt 4 ]; then
+            headline="🟠 **הסנכרון עובד חלקית** — ${FRESH} מתוך ${TOTAL} רשתות מעודכנות."
+          else
+            headline="🟢 **הכל תקין.** ${FRESH} מתוך ${TOTAL} רשתות התעדכנו בימים האחרונים."
+          fi
+
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          {
+            printf '## %s\n\n' "$headline"
+            printf '| רשת | מוצרים | עודכן | |\n'
+            printf '| --- | ---: | --- | :-: |\n'
+            cat rows.md
+            printf '\n<div dir="rtl">\n\n'
+            printf '**מה זה אומר**\n\n'
+            printf -- '- ✅ הרשת התעדכנה ביומיים האחרונים — תקין\n'
+            printf -- '- ⚠️ הרשת לא התעדכנה כבר כמה ימים — הסנכרון שלה כנראה נשבר\n'
+            printf -- '- ❌ אין בכלל נתונים לרשת הזאת\n\n'
+            printf '**אם קיבלת את המייל הזה — הסנכרון חי.** אם הפסיקו להגיע, זה עצמו הסימן שמשהו נשבר.\n\n'
+            printf '</div>\n\n'
+            printf -- '*נוצר אוטומטית · [הריצה](%s)*\n' "$run_url"
+          } > report.md
+
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+
+          # One long-lived issue with weekly comments, rather than 52 new issues a year.
+          num=$(gh issue list --state open --limit 100 --json number,title \
+                  --jq "map(select(.title==\"${ISSUE_TITLE}\")) | .[0].number // empty")
+
+          if [ -z "${num:-}" ]; then
+            gh issue create --title "$ISSUE_TITLE" --body-file report.md
+            echo "opened the tracking issue"
+          else
+            gh issue comment "$num" --body-file report.md
+            echo "commented on issue #${num}"
+          fi
