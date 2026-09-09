@@ -4,18 +4,18 @@
     "label": "רמי לוי",
     "files_downloaded": 100,
     "files_matched": 100,
-    "branches": 64,
-    "parsed": 24493,
-    "upserted": 24493,
+    "branches": 65,
+    "parsed": 24550,
+    "upserted": 24550,
     "sample_filenames": [
-      "PriceFull7290058140886-001-001-20260908-001000.xml",
-      "PriceFull7290058140886-001-002-20260908-001014.xml",
-      "PriceFull7290058140886-001-003-20260908-001005.xml",
-      "PriceFull7290058140886-001-003-20260908-060006.xml",
-      "PriceFull7290058140886-001-005-20260908-001003.xml"
+      "PriceFull7290058140886-001-001-20260909-001008.xml",
+      "PriceFull7290058140886-001-002-20260909-001008.xml",
+      "PriceFull7290058140886-001-003-20260909-001009.xml",
+      "PriceFull7290058140886-001-003-20260909-060016.xml",
+      "PriceFull7290058140886-001-005-20260909-001014.xml"
     ],
     "error": null,
-    "seconds": 108.1
+    "seconds": 116.9
   },
   {
     "chain": "SHUFERSAL",
@@ -23,17 +23,17 @@
     "files_downloaded": 100,
     "files_matched": 100,
     "branches": 100,
-    "parsed": 12137,
-    "upserted": 12137,
+    "parsed": 12148,
+    "upserted": 12148,
     "sample_filenames": [
-      "PriceFull7290027600007-001-001-20260908-030000.xml",
-      "PriceFull7290027600007-001-002-20260908-030000.xml",
-      "PriceFull7290027600007-001-003-20260908-030000.xml",
-      "PriceFull7290027600007-001-004-20260908-030000.xml",
-      "PriceFull7290027600007-001-005-20260908-030000.xml"
+      "PriceFull7290027600007-001-001-20260909-030000.xml",
+      "PriceFull7290027600007-001-002-20260909-030000.xml",
+      "PriceFull7290027600007-001-003-20260909-030000.xml",
+      "PriceFull7290027600007-001-004-20260909-030000.xml",
+      "PriceFull7290027600007-001-005-20260909-030000.xml"
     ],
     "error": null,
-    "seconds": 51.2
+    "seconds": 60.2
   },
   {
     "chain": "VICTORY_NEW_SOURCE",
@@ -53,17 +53,17 @@
     "files_downloaded": 66,
     "files_matched": 66,
     "branches": 66,
-    "parsed": 21353,
-    "upserted": 21353,
+    "parsed": 21355,
+    "upserted": 21355,
     "sample_filenames": [
-      "PriceFull7290803800003-000-001-20260908-004036.xml",
-      "PriceFull7290803800003-000-004-20260908-004036.xml",
-      "PriceFull7290803800003-000-005-20260908-004036.xml",
-      "PriceFull7290803800003-000-007-20260908-004036.xml",
-      "PriceFull7290803800003-000-008-20260908-004036.xml"
+      "PriceFull7290803800003-000-001-20260909-004031.xml",
+      "PriceFull7290803800003-000-004-20260909-004031.xml",
+      "PriceFull7290803800003-000-005-20260909-004031.xml",
+      "PriceFull7290803800003-000-007-20260909-004031.xml",
+      "PriceFull7290803800003-000-008-20260909-004031.xml"
     ],
     "error": null,
-    "seconds": 72.2
+    "seconds": 77.6
   },
   {
     "chain": "OSHER_AD",
@@ -71,17 +71,17 @@
     "files_downloaded": 24,
     "files_matched": 24,
     "branches": 24,
-    "parsed": 9802,
-    "upserted": 9802,
+    "parsed": 9814,
+    "upserted": 9814,
     "sample_filenames": [
-      "PriceFull7290103152017-001-001-20260908-080005.xml",
-      "PriceFull7290103152017-001-003-20260908-080008.xml",
-      "PriceFull7290103152017-001-005-20260908-080006.xml",
-      "PriceFull7290103152017-001-006-20260908-080016.xml",
-      "PriceFull7290103152017-001-009-20260908-080010.xml"
+      "PriceFull7290103152017-001-001-20260909-080012.xml",
+      "PriceFull7290103152017-001-003-20260909-080004.xml",
+      "PriceFull7290103152017-001-005-20260909-080002.xml",
+      "PriceFull7290103152017-001-006-20260909-080014.xml",
+      "PriceFull7290103152017-001-009-20260909-080001.xml"
     ],
     "error": null,
-    "seconds": 27.8
+    "seconds": 28.0
   },
   {
     "chain": "MAHSANI_ASHUK_NEW_SOURCE",
@@ -100,17 +100,17 @@
     "label": "יינות ביתן / קארפור",
     "files_downloaded": 100,
     "files_matched": 100,
-    "branches": 91,
-    "parsed": 22094,
-    "upserted": 22094,
+    "branches": 92,
+    "parsed": 22203,
+    "upserted": 22203,
     "sample_filenames": [
-      "PriceFull7290055700007-001-002-20260908-051018.xml",
-      "PriceFull7290055700007-001-004-20260908-051017.xml",
-      "PriceFull7290055700007-001-009-20260908-051003.xml",
-      "PriceFull7290055700007-001-010-20260908-051015.xml",
-      "PriceFull7290055700007-001-012-20260908-051017.xml"
+      "PriceFull7290055700007-001-002-20260909-051002.xml",
+      "PriceFull7290055700007-001-004-20260909-051013.xml",
+      "PriceFull7290055700007-001-009-20260909-051016.xml",
+      "PriceFull7290055700007-001-010-20260909-051010.xml",
+      "PriceFull7290055700007-001-012-20260909-051000.xml"
     ],
     "error": null,
-    "seconds": 60.7
+    "seconds": 66.4
   }
 ]
