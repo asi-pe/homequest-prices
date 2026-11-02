@@ -5,17 +5,17 @@
     "files_downloaded": 100,
     "files_matched": 100,
     "branches": 63,
-    "parsed": 24386,
-    "upserted": 24386,
+    "parsed": 24407,
+    "upserted": 24407,
     "sample_filenames": [
-      "PriceFull7290058140886-001-001-20261101-001003.xml",
-      "PriceFull7290058140886-001-002-20261101-001010.xml",
-      "PriceFull7290058140886-001-003-20261101-001015.xml",
-      "PriceFull7290058140886-001-003-20261101-060015.xml",
-      "PriceFull7290058140886-001-006-20261101-001018.xml"
+      "PriceFull7290058140886-001-001-20261102-001007.xml",
+      "PriceFull7290058140886-001-002-20261102-001012.xml",
+      "PriceFull7290058140886-001-003-20261102-001009.xml",
+      "PriceFull7290058140886-001-003-20261102-060006.xml",
+      "PriceFull7290058140886-001-005-20261102-001010.xml"
     ],
     "error": null,
-    "seconds": 97.3
+    "seconds": 127.0
   },
   {
     "chain": "SHUFERSAL",
@@ -23,17 +23,17 @@
     "files_downloaded": 100,
     "files_matched": 100,
     "branches": 100,
-    "parsed": 12134,
-    "upserted": 12134,
+    "parsed": 12156,
+    "upserted": 12156,
     "sample_filenames": [
-      "PriceFull7290027600007-001-001-20261101-032630.xml",
-      "PriceFull7290027600007-001-002-20261101-032630.xml",
-      "PriceFull7290027600007-001-003-20261101-032630.xml",
-      "PriceFull7290027600007-001-004-20261101-032630.xml",
-      "PriceFull7290027600007-001-005-20261101-032630.xml"
+      "PriceFull7290027600007-001-001-20261102-030000.xml",
+      "PriceFull7290027600007-001-002-20261102-030000.xml",
+      "PriceFull7290027600007-001-003-20261102-030000.xml",
+      "PriceFull7290027600007-001-004-20261102-030000.xml",
+      "PriceFull7290027600007-001-005-20261102-030000.xml"
     ],
     "error": null,
-    "seconds": 119.8
+    "seconds": 320.9
   },
   {
     "chain": "VICTORY_NEW_SOURCE",
@@ -53,17 +53,17 @@
     "files_downloaded": 66,
     "files_matched": 66,
     "branches": 66,
-    "parsed": 20746,
-    "upserted": 20746,
+    "parsed": 20782,
+    "upserted": 20782,
     "sample_filenames": [
-      "PriceFull7290803800003-000-001-20261101-004038.xml",
-      "PriceFull7290803800003-000-004-20261101-004038.xml",
-      "PriceFull7290803800003-000-005-20261101-004038.xml",
-      "PriceFull7290803800003-000-007-20261101-004038.xml",
-      "PriceFull7290803800003-000-008-20261101-004038.xml"
+      "PriceFull7290803800003-000-001-20261102-004031.xml",
+      "PriceFull7290803800003-000-004-20261102-004031.xml",
+      "PriceFull7290803800003-000-005-20261102-004031.xml",
+      "PriceFull7290803800003-000-007-20261102-004031.xml",
+      "PriceFull7290803800003-000-008-20261102-004031.xml"
     ],
     "error": null,
-    "seconds": 74.0
+    "seconds": 121.6
   },
   {
     "chain": "OSHER_AD",
@@ -71,17 +71,17 @@
     "files_downloaded": 24,
     "files_matched": 24,
     "branches": 24,
-    "parsed": 9678,
-    "upserted": 9678,
+    "parsed": 9679,
+    "upserted": 9679,
     "sample_filenames": [
-      "PriceFull7290103152017-001-001-20261101-080009.xml",
-      "PriceFull7290103152017-001-003-20261101-080008.xml",
-      "PriceFull7290103152017-001-005-20261101-080018.xml",
-      "PriceFull7290103152017-001-006-20261101-080011.xml",
-      "PriceFull7290103152017-001-009-20261101-080011.xml"
+      "PriceFull7290103152017-001-001-20261102-080019.xml",
+      "PriceFull7290103152017-001-003-20261102-080019.xml",
+      "PriceFull7290103152017-001-005-20261102-080006.xml",
+      "PriceFull7290103152017-001-006-20261102-080005.xml",
+      "PriceFull7290103152017-001-009-20261102-080013.xml"
     ],
     "error": null,
-    "seconds": 29.3
+    "seconds": 27.4
   },
   {
     "chain": "MAHSANI_ASHUK_NEW_SOURCE",
@@ -93,7 +93,7 @@
     "upserted": 0,
     "sample_filenames": [],
     "error": "RuntimeError: listing 7290661400001: URLError: <urlopen error timed out>",
-    "seconds": 42.7
+    "seconds": 42.6
   },
   {
     "chain": "YAYNO_BITAN_AND_CARREFOUR",
@@ -105,6 +105,6 @@
     "upserted": 0,
     "sample_filenames": [],
     "error": null,
-    "seconds": 315.0
+    "seconds": 314.6
   }
 ]
