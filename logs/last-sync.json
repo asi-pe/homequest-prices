@@ -4,18 +4,18 @@
     "label": "רמי לוי",
     "files_downloaded": 100,
     "files_matched": 100,
-    "branches": 64,
-    "parsed": 24515,
-    "upserted": 24515,
+    "branches": 62,
+    "parsed": 24453,
+    "upserted": 24453,
     "sample_filenames": [
-      "PriceFull7290058140886-001-001-20261105-001003.xml",
-      "PriceFull7290058140886-001-002-20261105-001019.xml",
-      "PriceFull7290058140886-001-003-20261105-001013.xml",
-      "PriceFull7290058140886-001-003-20261105-060006.xml",
-      "PriceFull7290058140886-001-005-20261105-001011.xml"
+      "PriceFull7290058140886-001-001-20261106-001007.xml",
+      "PriceFull7290058140886-001-002-20261106-001017.xml",
+      "PriceFull7290058140886-001-003-20261106-001019.xml",
+      "PriceFull7290058140886-001-003-20261106-060006.xml",
+      "PriceFull7290058140886-001-005-20261106-001003.xml"
     ],
     "error": null,
-    "seconds": 131.1
+    "seconds": 135.2
   },
   {
     "chain": "SHUFERSAL",
@@ -23,17 +23,17 @@
     "files_downloaded": 100,
     "files_matched": 100,
     "branches": 100,
-    "parsed": 12199,
-    "upserted": 12199,
+    "parsed": 12225,
+    "upserted": 12225,
     "sample_filenames": [
-      "PriceFull7290027600007-001-001-20261105-030000.xml",
-      "PriceFull7290027600007-001-002-20261105-030000.xml",
-      "PriceFull7290027600007-001-003-20261105-030000.xml",
-      "PriceFull7290027600007-001-004-20261105-030000.xml",
-      "PriceFull7290027600007-001-005-20261105-030000.xml"
+      "PriceFull7290027600007-001-001-20261106-043100.xml",
+      "PriceFull7290027600007-001-002-20261106-043100.xml",
+      "PriceFull7290027600007-001-003-20261106-043100.xml",
+      "PriceFull7290027600007-001-004-20261106-043100.xml",
+      "PriceFull7290027600007-001-005-20261106-043100.xml"
     ],
     "error": null,
-    "seconds": 167.9
+    "seconds": 180.4
   },
   {
     "chain": "VICTORY_NEW_SOURCE",
@@ -45,7 +45,7 @@
     "upserted": 0,
     "sample_filenames": [],
     "error": "RuntimeError: listing 7290696200003: URLError: <urlopen error timed out>",
-    "seconds": 42.8
+    "seconds": 42.6
   },
   {
     "chain": "YOHANANOF",
@@ -53,17 +53,17 @@
     "files_downloaded": 66,
     "files_matched": 66,
     "branches": 66,
-    "parsed": 20773,
-    "upserted": 20773,
+    "parsed": 20785,
+    "upserted": 20785,
     "sample_filenames": [
-      "PriceFull7290803800003-000-001-20261105-004031.xml",
-      "PriceFull7290803800003-000-004-20261105-004031.xml",
-      "PriceFull7290803800003-000-005-20261105-004031.xml",
-      "PriceFull7290803800003-000-007-20261105-004031.xml",
-      "PriceFull7290803800003-000-008-20261105-004031.xml"
+      "PriceFull7290803800003-000-001-20261106-004031.xml",
+      "PriceFull7290803800003-000-004-20261106-004031.xml",
+      "PriceFull7290803800003-000-005-20261106-004031.xml",
+      "PriceFull7290803800003-000-007-20261106-004031.xml",
+      "PriceFull7290803800003-000-008-20261106-004031.xml"
     ],
     "error": null,
-    "seconds": 90.8
+    "seconds": 87.2
   },
   {
     "chain": "OSHER_AD",
@@ -71,17 +71,17 @@
     "files_downloaded": 24,
     "files_matched": 24,
     "branches": 24,
-    "parsed": 9703,
-    "upserted": 9703,
+    "parsed": 9655,
+    "upserted": 9655,
     "sample_filenames": [
-      "PriceFull7290103152017-001-001-20261105-080007.xml",
-      "PriceFull7290103152017-001-003-20261105-080000.xml",
-      "PriceFull7290103152017-001-005-20261105-080011.xml",
-      "PriceFull7290103152017-001-006-20261105-080003.xml",
-      "PriceFull7290103152017-001-009-20261105-080002.xml"
+      "PriceFull7290103152017-001-001-20261106-080017.xml",
+      "PriceFull7290103152017-001-003-20261106-080018.xml",
+      "PriceFull7290103152017-001-005-20261106-080019.xml",
+      "PriceFull7290103152017-001-006-20261106-080007.xml",
+      "PriceFull7290103152017-001-009-20261106-080017.xml"
     ],
     "error": null,
-    "seconds": 36.5
+    "seconds": 34.5
   },
   {
     "chain": "MAHSANI_ASHUK_NEW_SOURCE",
@@ -93,7 +93,7 @@
     "upserted": 0,
     "sample_filenames": [],
     "error": "RuntimeError: listing 7290661400001: URLError: <urlopen error timed out>",
-    "seconds": 42.9
+    "seconds": 43.1
   },
   {
     "chain": "YAYNO_BITAN_AND_CARREFOUR",
@@ -105,6 +105,6 @@
     "upserted": 0,
     "sample_filenames": [],
     "error": null,
-    "seconds": 315.0
+    "seconds": 314.4
   }
 ]
