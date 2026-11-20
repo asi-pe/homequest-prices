@@ -5,17 +5,17 @@
     "files_downloaded": 100,
     "files_matched": 100,
     "branches": 63,
-    "parsed": 24393,
-    "upserted": 24393,
+    "parsed": 24414,
+    "upserted": 24414,
     "sample_filenames": [
-      "PriceFull7290058140886-001-001-20261119-001010.xml",
-      "PriceFull7290058140886-001-002-20261119-001003.xml",
-      "PriceFull7290058140886-001-003-20261119-001018.xml",
-      "PriceFull7290058140886-001-003-20261119-060006.xml",
-      "PriceFull7290058140886-001-005-20261119-001000.xml"
+      "PriceFull7290058140886-001-001-20261120-001017.xml",
+      "PriceFull7290058140886-001-002-20261120-001000.xml",
+      "PriceFull7290058140886-001-003-20261120-001014.xml",
+      "PriceFull7290058140886-001-005-20261120-001007.xml",
+      "PriceFull7290058140886-001-005-20261120-060327.xml"
     ],
     "error": null,
-    "seconds": 115.2
+    "seconds": 122.8
   },
   {
     "chain": "SHUFERSAL",
@@ -23,17 +23,17 @@
     "files_downloaded": 100,
     "files_matched": 100,
     "branches": 100,
-    "parsed": 12205,
-    "upserted": 12205,
+    "parsed": 12199,
+    "upserted": 12199,
     "sample_filenames": [
-      "PriceFull7290027600007-001-001-20261119-030000.xml",
-      "PriceFull7290027600007-001-002-20261119-030000.xml",
-      "PriceFull7290027600007-001-003-20261119-030000.xml",
-      "PriceFull7290027600007-001-004-20261119-030000.xml",
-      "PriceFull7290027600007-001-005-20261119-030000.xml"
+      "PriceFull7290027600007-001-001-20261120-043100.xml",
+      "PriceFull7290027600007-001-002-20261120-043100.xml",
+      "PriceFull7290027600007-001-003-20261120-043100.xml",
+      "PriceFull7290027600007-001-004-20261120-043100.xml",
+      "PriceFull7290027600007-001-005-20261120-043100.xml"
     ],
     "error": null,
-    "seconds": 40.5
+    "seconds": 38.9
   },
   {
     "chain": "VICTORY_NEW_SOURCE",
@@ -45,7 +45,7 @@
     "upserted": 0,
     "sample_filenames": [],
     "error": "RuntimeError: listing 7290696200003: URLError: <urlopen error timed out>",
-    "seconds": 42.8
+    "seconds": 42.9
   },
   {
     "chain": "YOHANANOF",
@@ -56,14 +56,14 @@
     "parsed": 20840,
     "upserted": 20840,
     "sample_filenames": [
-      "PriceFull7290803800003-000-001-20261119-004031.xml",
-      "PriceFull7290803800003-000-004-20261119-004031.xml",
-      "PriceFull7290803800003-000-005-20261119-004031.xml",
-      "PriceFull7290803800003-000-007-20261119-004031.xml",
-      "PriceFull7290803800003-000-008-20261119-004031.xml"
+      "PriceFull7290803800003-000-001-20261120-004031.xml",
+      "PriceFull7290803800003-000-004-20261120-004031.xml",
+      "PriceFull7290803800003-000-005-20261120-004031.xml",
+      "PriceFull7290803800003-000-007-20261120-004031.xml",
+      "PriceFull7290803800003-000-008-20261120-004031.xml"
     ],
     "error": null,
-    "seconds": 78.3
+    "seconds": 84.9
   },
   {
     "chain": "OSHER_AD",
@@ -71,14 +71,14 @@
     "files_downloaded": 24,
     "files_matched": 24,
     "branches": 24,
-    "parsed": 9622,
-    "upserted": 9622,
+    "parsed": 9620,
+    "upserted": 9620,
     "sample_filenames": [
-      "PriceFull7290103152017-001-001-20261119-080001.xml",
-      "PriceFull7290103152017-001-003-20261119-080018.xml",
-      "PriceFull7290103152017-001-005-20261119-080012.xml",
-      "PriceFull7290103152017-001-006-20261119-080014.xml",
-      "PriceFull7290103152017-001-009-20261119-080011.xml"
+      "PriceFull7290103152017-001-001-20261120-080018.xml",
+      "PriceFull7290103152017-001-003-20261120-080019.xml",
+      "PriceFull7290103152017-001-005-20261120-080016.xml",
+      "PriceFull7290103152017-001-006-20261120-080001.xml",
+      "PriceFull7290103152017-001-009-20261120-080003.xml"
     ],
     "error": null,
     "seconds": 30.7
@@ -93,7 +93,7 @@
     "upserted": 0,
     "sample_filenames": [],
     "error": "RuntimeError: listing 7290661400001: URLError: <urlopen error timed out>",
-    "seconds": 42.7
+    "seconds": 42.6
   },
   {
     "chain": "YAYNO_BITAN_AND_CARREFOUR",
@@ -105,6 +105,6 @@
     "upserted": 0,
     "sample_filenames": [],
     "error": null,
-    "seconds": 314.6
+    "seconds": 314.4
   }
 ]
